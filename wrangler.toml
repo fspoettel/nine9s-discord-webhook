@@ -1,0 +1,11 @@
+name = "nine9s-webhook-discord"
+type = "javascript"
+
+account_id = ""
+workers_dev = true
+route = ""
+zone_id = ""
+
+# [secrets]
+# NINE9S_WEBHOOK_SECRET
+# DISCORD_WEBHOOK_URL
