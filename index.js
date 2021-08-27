@@ -55,6 +55,39 @@ function postDiscordWebhook(data) {
 
   const checkStatus = data.last_check_status
 
+  const embedFields = [
+    {
+      name: 'Endpoint',
+      value: data.name,
+    },
+    {
+      name: 'Endpoint URL',
+      value: data.endpoint_url,
+    },
+    {
+      name: 'Status',
+      value: checkStatus,
+    },
+    {
+      name: 'Status Details',
+      value: data.last_check_message ?? 'No information provided',
+    },
+  ]
+
+  const mostRecentCheck = data.history?.[0]
+
+  if (mostRecentCheck) {
+    embedFields.push({
+      name: 'Response Time',
+      value: `${mostRecentCheck.response_time}ms`,
+    })
+
+    embedFields.push({
+      name: 'Created At',
+      value: mostRecentCheck.created_at,
+    })
+  }
+
   return fetch(DISCORD_WEBHOOK_URL, {
     method: 'POST',
     headers: {
@@ -71,30 +104,9 @@ function postDiscordWebhook(data) {
           },
           color: statusColorMapping[checkStatus],
           title: 'Endpoint Status Change',
-          fields: [
-            {
-              name: 'Endpoint',
-              value: data.name,
-            },
-            {
-              name: 'Endpoint URL',
-              value: data.endpoint_url,
-            },
-            {
-              name: 'Status',
-              value: checkStatus,
-            },
-            {
-              name: 'Status Details',
-              value: data.last_check_message ?? 'No information provided',
-            },
-            {
-              name: 'Created At',
-              value: data.created_at,
-            },
-          ],
+          fields: embedFields,
           footer: {
-            text: `Status: ${data.status}, Event Id: #${data.uuid}`,
+            text: `Status: ${data.status}, Endpoint Id: #${data.uuid}`,
           },
         },
       ],

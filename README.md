@@ -1,6 +1,7 @@
 # nine9s-discord-webhook
 
 [![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/fspoettel/nine9s-discord-webhook)
+
 ## Configuration
 
 Forward [nine9s.cloud](https://nine9s.cloud) webhooks to [discord](https://discord.com) via [Cloudflare Workers](https://workers.cloudflare.com/).
