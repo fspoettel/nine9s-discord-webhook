@@ -6,13 +6,7 @@ addEventListener('fetch', event => {
  * @param {Request} request
  */
 async function handleRequest(request) {
-  const { headers } = request
-
-  // @see https://nine9s.cloud/api/docs
-  if (
-    headers.get('X-Webhook-Secret') !== NINE9S_WEBHOOK_SECRET ||
-    !(headers.get('User-Agent') ?? '').startsWith('Nine9s.cloud Webhook Alerts')
-  ) {
+  if (!isAuthenticated(request.headers)) {
     return responses.badRequest()
   }
 
@@ -24,6 +18,7 @@ async function handleRequest(request) {
       throw new TypeError('unexpected event format')
     }
   } catch (err) {
+    console.log(err)
     return responses.badRequest()
   }
 
@@ -31,9 +26,17 @@ async function handleRequest(request) {
     await postDiscordWebhook(body.data)
     return responses.success()
   } catch (err) {
-    console.error(err)
+    console.log(err)
     return responses.internalError()
   }
+}
+
+function isAuthenticated(headers) {
+  // @see https://nine9s.cloud/api/docs
+  return (
+    headers.get('X-Webhook-Secret') === NINE9S_WEBHOOK_SECRET ||
+    (headers.get('User-Agent') ?? '').startsWith('Nine9s.cloud Webhook Alerts')
+  )
 }
 
 // @see https://nine9s.cloud/api/docs#operation/retrieveEndpoint
@@ -46,13 +49,6 @@ function isWellFormattedEvent(body) {
 }
 
 function postDiscordWebhook(data) {
-  // @see https://www.binaryhexconverter.com/hex-to-decimal-converter
-  const statusColorMapping = {
-    ok: 32768,
-    degraded: 16766720,
-    down: 16711680,
-  }
-
   const checkStatus = data.last_check_status
 
   const embedFields = [
@@ -74,17 +70,31 @@ function postDiscordWebhook(data) {
     },
   ]
 
-  const mostRecentCheck = data.history?.[0]
+  if (data.history.length > 0) {
+    const {
+      createdAt,
+      downTime,
+      exactDowntime,
+      responseTime,
+    } = parseHistory(data.history)
 
-  if (mostRecentCheck) {
     embedFields.push({
       name: 'Response Time',
-      value: `${mostRecentCheck.response_time}ms`,
+      value: `${responseTime}ms`,
+      inline: true,
     })
+
+    if (downTime) {
+      embedFields.push({
+        name: 'Resolved After',
+        value: `${downTime}${exactDowntime ? ' min' : '+ min'}`,
+        inline: true,
+      })
+    }
 
     embedFields.push({
       name: 'Created At',
-      value: mostRecentCheck.created_at,
+      value: createdAt,
     })
   }
 
@@ -103,7 +113,7 @@ function postDiscordWebhook(data) {
             url: 'https://nine9s.cloud/',
             icon_url: 'https://nine9s.cloud/static/logo.png',
           },
-          color: statusColorMapping[checkStatus],
+          color: getColorForStatus(checkStatus),
           title: 'Endpoint Status Change',
           fields: embedFields,
           footer: {
@@ -113,6 +123,54 @@ function postDiscordWebhook(data) {
       ],
     }),
   })
+}
+
+function parseHistory(history) {
+  const [mostRecentCheck, ...rest] = history
+  const responseTime = mostRecentCheck.response_time
+  const createdAt = mostRecentCheck.created_at
+
+  if (!mostRecentCheck.ok) {
+    return {
+      createdAt,
+      downTime: null,
+      exactDowntime: false,
+      responseTime
+    }
+  }
+
+  const lastGoodCheck = rest.find(x => x.ok)
+  const earliestCheck = rest[rest.length - 1]
+
+  const downTime = timeDiffInMinutes(
+    (lastGoodCheck ?? earliestCheck).created_at,
+    mostRecentCheck.created_at,
+  )
+
+  return {
+    createdAt,
+    downTime,
+    exactDowntime: !!lastGoodCheck,
+    responseTime,
+  }
+}
+
+function timeDiffInMinutes(prev, now) {
+  const prevTime = new Date(prev)
+  const nowTime = new Date(now)
+
+  return ((nowTime.getTime() - prevTime.getTime()) / 1000 / 60).toFixed(1)
+}
+
+function getColorForStatus(status) {
+  // @see https://www.binaryhexconverter.com/hex-to-decimal-converter
+  const statusColorMapping = {
+    ok: 32768,
+    degraded: 16766720,
+    down: 16711680,
+  }
+
+  return statusColorMapping[status]
 }
 
 const responses = {
