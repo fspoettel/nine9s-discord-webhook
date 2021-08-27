@@ -64,25 +64,25 @@ function postDiscordWebhook(data) {
       name: 'Status',
       value: checkStatus,
     },
-    {
-      name: 'Status Details',
-      value: data.last_check_message ?? 'No information provided',
-    },
   ]
 
-  if (data.history.length > 0) {
-    const {
-      createdAt,
-      downTime,
-      exactDowntime,
-      responseTime,
-    } = parseHistory(data.history)
-
-    embedFields.push({
-      name: 'Response Time',
-      value: `${responseTime}ms`,
-      inline: true,
+  if (data.last_check_message) {
+    fields.push({
+      name: 'Status Details',
+      value: data.last_check_message,
     })
+  }
+
+  if (data.history.length > 0) {
+    const { createdAt, downTime, exactDowntime, responseTime } = parseHistory(
+      data.history,
+    )
+
+      embedFields.push({
+        name: 'Response Time',
+        value: `${responseTime}ms`,
+        inline: true,
+      })
 
     if (downTime) {
       embedFields.push({
@@ -135,7 +135,7 @@ function parseHistory(history) {
       createdAt,
       downTime: null,
       exactDowntime: false,
-      responseTime
+      responseTime,
     }
   }
 
