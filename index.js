@@ -95,6 +95,7 @@ function postDiscordWebhook(data) {
     },
     // @see https://birdie0.github.io/discord-webhooks-guide/discord_webhook.html
     body: JSON.stringify({
+      content: checkStatus === 'down' ? '@here' : undefined,
       embeds: [
         {
           author: {
