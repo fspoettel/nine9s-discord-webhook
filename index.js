@@ -78,11 +78,13 @@ function postDiscordWebhook(data) {
       data.history,
     )
 
+    if (checkStatus !== 'down') {
       embedFields.push({
         name: 'Response Time',
         value: `${responseTime}ms`,
         inline: true,
       })
+    }
 
     if (downTime) {
       embedFields.push({
