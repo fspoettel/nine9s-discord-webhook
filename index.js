@@ -86,14 +86,14 @@ function postDiscordWebhook(data) {
 
     if (downTime) {
       embedFields.push({
-        name: 'Resolved After',
+        name: 'Incident Duration',
         value: `${downTime}${exactDowntime ? ' min' : '+ min'}`,
         inline: true,
       })
     }
 
     embedFields.push({
-      name: 'Created At',
+      name: 'Timestamp',
       value: createdAt,
     })
   }
