@@ -1,17 +1,13 @@
 /* globals fetch, DISCORD_WEBHOOK_URL */
 
-// @see https://www.binaryhexconverter.com/hex-to-decimal-converter
-function getColorForStatus(status) {
-  const statusColorMapping = {
-    ok: 32768,
-    degraded: 16766720,
-    down: 16711680,
-  }
+import { statusToDecimalColor } from "./helpers"
 
-  return statusColorMapping[status]
-}
-
-// @see https://birdie0.github.io/discord-webhooks-guide/discord_webhook.html
+/**
+ * @see https://birdie0.github.io/discord-webhooks-guide/discord_webhook.html
+ * @see parseEvent
+ * @param {object} data parsed nine9s data
+ * @returns
+ */
 export function createWebhookPayload(data) {
   const embedFields = [
     {
@@ -69,7 +65,7 @@ export function createWebhookPayload(data) {
           url: 'https://nine9s.cloud/',
           icon_url: 'https://nine9s.cloud/static/logo.png',
         },
-        color: getColorForStatus(data.status),
+        color: statusToDecimalColor(data.status),
         title: 'Endpoint Status Change',
         fields: embedFields,
         footer: {
@@ -80,6 +76,10 @@ export function createWebhookPayload(data) {
   }
 }
 
+/**
+ * @param {object} payload webhook payload
+ * @returns {Response} discord API response
+ */
 export async function postWebhook(payload) {
   const res = await fetch(DISCORD_WEBHOOK_URL, {
     method: 'POST',

@@ -17,6 +17,7 @@ const responses = {
 
 /**
  * @param {Request} request
+ * @returns {Response}
  */
 export async function handler(request) {
   if (!isAuthenticated(request.headers)) {

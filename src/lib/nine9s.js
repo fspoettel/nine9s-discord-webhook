@@ -1,6 +1,12 @@
 /* globals NINE9S_WEBHOOK_SECRET */
 
-// @see https://nine9s.cloud/api/docs
+import { timeDiffInMinutes } from "./helpers"
+
+/**
+ * @see https://nine9s.cloud/api/docs
+ * @param {Headers} headers
+ * @returns {boolean}
+ */
 export function isAuthenticated(headers) {
   return (
     headers.get('X-Webhook-Secret') === NINE9S_WEBHOOK_SECRET ||
@@ -8,7 +14,11 @@ export function isAuthenticated(headers) {
   )
 }
 
-// @see https://nine9s.cloud/api/docs#operation/retrieveEndpoint
+/**
+ * @see https://nine9s.cloud/api/docs#operation/retrieveEndpoint
+ * @param {unknown} event event received via webhook
+ * @returns {boolean}
+ */
 export function isWellFormattedEvent(event) {
   return (
     typeof event === 'object' &&
@@ -17,10 +27,12 @@ export function isWellFormattedEvent(event) {
   )
 }
 
-// @see https://nine9s.cloud/api/docs#operation/retrieveEndpoint
+/**
+ * @see https://nine9s.cloud/api/docs#operation/retrieveEndpoint
+ * @param {object} event validated nine9s webhook event
+ * @returns
+ */
 export function parseEvent({ data }) {
-  const checkStatus = data.last_check_status
-
   return {
     endpoint: {
       name: data.name,
@@ -28,13 +40,13 @@ export function parseEvent({ data }) {
       status: data.status,
       id: data.uuid,
     },
-    status: checkStatus,
+    status: data.last_check_status,
     statusDetails: data.last_check_message || null,
-    ...parseHistory(data),
+    ...parseHistory(data.history),
   }
 }
 
-function parseHistory({ history }) {
+function parseHistory(history) {
   if (!Array.isArray(history) || history.length === 0) return {}
 
   const [mostRecentCheck, ...rest] = history
@@ -46,7 +58,7 @@ function parseHistory({ history }) {
     responseTime,
   }
 
-  if (!mostRecentCheck.ok) {
+  if (!mostRecentCheck.ok || rest.length === 0) {
     return parsed
   }
 
@@ -65,9 +77,3 @@ function parseHistory({ history }) {
   }
 }
 
-function timeDiffInMinutes(prev, now) {
-  const prevTime = new Date(prev)
-  const nowTime = new Date(now)
-
-  return ((nowTime.getTime() - prevTime.getTime()) / 1000 / 60).toFixed(1)
-}
