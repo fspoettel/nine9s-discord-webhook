@@ -5,12 +5,14 @@
   "description": "Forward nine9s.cloud webhooks to discord via Cloudflare Workers",
   "main": "index.js",
   "scripts": {
+    "lint": "eslint .",
     "test": "echo \"Error: no test specified\" && exit 1",
     "format": "prettier --write '**/*.{js,css,json,md}'"
   },
   "author": "Felix Spöttel <1682504+fspoettel@users.noreply.github.com>",
   "license": "MIT",
   "devDependencies": {
+    "eslint": "^7.32.0",
     "prettier": "^1.18.2"
   }
 }

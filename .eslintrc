@@ -1,0 +1,11 @@
+{
+  "extends": "eslint:recommended",
+  "ignorePatterns": [
+    "dist",
+    "worker"
+  ],
+  "parserOptions": {
+    "ecmaVersion": 2021,
+    "sourceType": "module"
+  }
+}
