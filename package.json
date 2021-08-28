@@ -3,7 +3,7 @@
   "name": "nine9s-discord-webhook",
   "version": "1.0.0",
   "description": "Forward nine9s.cloud webhooks to discord via Cloudflare Workers",
-  "main": "src/index.js",
+  "main": "src/worker.js",
   "scripts": {
     "lint": "eslint .",
     "test": "echo \"Error: no test specified\" && exit 1",
