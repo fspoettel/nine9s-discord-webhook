@@ -15,11 +15,7 @@ const responses = {
   },
 }
 
-/**
- * @param {Request} request
- * @returns {Response}
- */
-export async function handler(request) {
+export async function handler(request: Request): Promise<Response> {
   if (!isAuthenticated(request.headers)) {
     return responses.badRequest()
   }

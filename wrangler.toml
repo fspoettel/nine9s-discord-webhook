@@ -1,10 +1,16 @@
 name = "nine9s-webhook-discord"
-type = "webpack"
+type = "javascript"
 
 account_id = ""
 workers_dev = true
 route = ""
 zone_id = ""
+
+
+[build]
+command = "yarn && yarn build"
+[build.upload]
+format = "service-worker"
 
 # [secrets]
 # NINE9S_WEBHOOK_SECRET

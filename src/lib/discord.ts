@@ -1,15 +1,31 @@
 /* globals fetch, DISCORD_WEBHOOK_URL */
 
-import { statusToDecimalColor } from "./helpers"
+import { EndpointStatus } from './types/Nine9sWebhookEvent'
+import { EventData } from './types/EventData'
+
+/**
+ * @see https://www.binaryhexconverter.com/hex-to-decimal-converter
+ */
+export function statusToDecimalColor(status: EndpointStatus): number {
+  const statusColorMapping = {
+    ok: 32768,
+    degraded: 16766720,
+    down: 16711680,
+  }
+
+  return statusColorMapping[status]
+}
 
 /**
  * @see https://birdie0.github.io/discord-webhooks-guide/discord_webhook.html
  * @see parseEvent
- * @param {object} data parsed nine9s data
- * @returns
  */
-export function createWebhookPayload(data) {
-  const embedFields = [
+export function createWebhookPayload(data: EventData): Record<string, unknown> {
+  const embedFields: {
+    name: string
+    value: string | number
+    inline?: boolean
+  }[] = [
     {
       name: 'Endpoint',
       value: data.endpoint.name,
@@ -80,7 +96,9 @@ export function createWebhookPayload(data) {
  * @param {object} payload webhook payload
  * @returns {Response} discord API response
  */
-export async function postWebhook(payload) {
+export async function postWebhook(
+  payload: Record<string, unknown>,
+): Promise<void> {
   const res = await fetch(DISCORD_WEBHOOK_URL, {
     method: 'POST',
     headers: {
@@ -92,6 +110,4 @@ export async function postWebhook(payload) {
   if (res.status >= 300) {
     throw new Error('could not post webhook to discord')
   }
-
-  return res
 }
