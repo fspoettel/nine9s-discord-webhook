@@ -3,11 +3,11 @@ export type EndpointStatus = 'down' | 'ok' | 'degraded'
 export type Nine9sWebhookEvent = {
   event_type: 'endpoint.status.changed'
   data: {
-    updated_at: string
+    created_at: string
     endpoint_url: string
     // TODO: figure out whether this is indeed `nullable`
     history?: {
-      updated_at: string
+      created_at: string
       response_time: number
       ok: boolean
     }[]

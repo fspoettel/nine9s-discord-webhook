@@ -44,7 +44,7 @@ export function parseEvent(event: Nine9sWebhookEvent): EventData {
     },
     status: data.last_check_status,
     statusDetails: data.last_check_message || undefined,
-    timestamp: data.updated_at,
+    timestamp: data.created_at,
     ...parseHistory(event),
   }
 }
@@ -57,7 +57,7 @@ function parseHistory(event: Nine9sWebhookEvent) {
 
   const [mostRecentCheck, ...rest] = history
   const responseTime = mostRecentCheck.response_time
-  const timestamp = mostRecentCheck.updated_at
+  const timestamp = mostRecentCheck.created_at
 
   const parsed = {
     timestamp,
@@ -72,7 +72,7 @@ function parseHistory(event: Nine9sWebhookEvent) {
   const earliestCheck = rest[rest.length - 1]
 
   const incidentDuration = timeDiffInMinutes(
-    (lastGoodCheck || earliestCheck).updated_at,
+    (lastGoodCheck || earliestCheck).created_at,
     timestamp,
   )
 
