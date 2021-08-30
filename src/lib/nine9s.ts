@@ -22,7 +22,10 @@ export function isWellFormattedEvent(x: unknown): x is Nine9sWebhookEvent {
     x != null &&
     'event_type' in x &&
     'data' in x &&
-    (x as Nine9sWebhookEvent).event_type === 'endpoint.status.changed'
+    (x as Nine9sWebhookEvent).event_type === 'endpoint.status.changed' &&
+    typeof (x as Nine9sWebhookEvent).data === 'object' &&
+    (x as Nine9sWebhookEvent).data != null &&
+    typeof (x as Nine9sWebhookEvent).data.last_check_status === 'string'
   )
 }
 
