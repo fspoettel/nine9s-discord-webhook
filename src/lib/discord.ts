@@ -20,7 +20,7 @@ export function statusToDecimalColor(status: EndpointStatus): number {
  * @see https://birdie0.github.io/discord-webhooks-guide/discord_webhook.html
  * @see parseEvent
  */
-export function createWebhookPayload(data: EventData): Record<string, unknown> {
+export function createPayload(data: EventData): Record<string, unknown> {
   const embedFields: {
     name: string
     value: string | number

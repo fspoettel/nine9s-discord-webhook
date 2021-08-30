@@ -1,7 +1,7 @@
 /* globals Response, console */
 
 import { isAuthenticated, isWellFormattedEvent, parseEvent } from './nine9s'
-import { createWebhookPayload, postWebhook } from './discord'
+import * as discordWebhookTarget from './discord'
 
 const responses = {
   success() {
@@ -32,9 +32,11 @@ export async function handler(request: Request): Promise<Response> {
     return responses.badRequest()
   }
 
+  const webhookTarget = discordWebhookTarget
+
   try {
-    const response = createWebhookPayload(parseEvent(event))
-    await postWebhook(response)
+    const response = webhookTarget.createPayload(parseEvent(event))
+    await webhookTarget.postWebhook(response)
     return responses.success()
   } catch (err) {
     console.log(err.message)
